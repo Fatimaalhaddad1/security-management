@@ -1,9 +1,22 @@
 const assetsRepository = require('../repositories/assets.repository');
+const sitesRepository = require('../repositories/sites.repository');
 const { validateCreateAsset, validateUpdateAsset } = require('../utils/validators');
+
+function getSiteId(req, listMode = false) {
+  if (req.user.role === 'super_admin') {
+    if (listMode && req.query.site_id) {
+      const id = parseInt(req.query.site_id, 10);
+      return isNaN(id) ? null : id;
+    }
+    return listMode ? null : null;
+  }
+  return req.user.site_id;
+}
 
 async function list(req, res) {
   try {
-    const assets = await assetsRepository.findAllBySite(req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? getSiteId(req, true) : req.user.site_id;
+    const assets = await assetsRepository.findAllBySite(siteId);
     res.json({ assets });
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
@@ -17,7 +30,8 @@ async function getById(req, res) {
       return res.status(400).json({ error: 'Invalid asset id' });
     }
 
-    const asset = await assetsRepository.findByIdAndSite(id, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const asset = await assetsRepository.findByIdAndSite(id, siteId);
     if (!asset) {
       return res.status(404).json({ error: 'Asset not found' });
     }
@@ -44,7 +58,24 @@ async function create(req, res) {
       return res.status(400).json({ errors });
     }
 
-    const asset = await assetsRepository.create(req.body, req.user.site_id);
+    let siteId = req.user.site_id;
+    if (req.user.role === 'super_admin') {
+      const sid = req.body.site_id;
+      if (sid === undefined || sid === null) {
+        return res.status(400).json({ errors: ['site_id is required for super_admin'] });
+      }
+      const parsed = parseInt(sid, 10);
+      if (isNaN(parsed)) {
+        return res.status(400).json({ errors: ['site_id must be numeric'] });
+      }
+      const site = await sitesRepository.findById(parsed);
+      if (!site) {
+        return res.status(400).json({ errors: ['Invalid site_id'] });
+      }
+      siteId = parsed;
+    }
+
+    const asset = await assetsRepository.create(req.body, siteId);
     res.status(201).json({ message: 'Asset created successfully', asset_id: asset.id });
   } catch (err) {
     if (err.code === '23505') {
@@ -75,7 +106,8 @@ async function update(req, res) {
       return res.status(400).json({ errors });
     }
 
-    const asset = await assetsRepository.update(id, req.user.site_id, req.body);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const asset = await assetsRepository.update(id, siteId, req.body);
     if (!asset) {
       return res.status(404).json({ error: 'Asset not found' });
     }
@@ -96,7 +128,8 @@ async function remove(req, res) {
       return res.status(400).json({ error: 'Invalid asset id' });
     }
 
-    const deleted = await assetsRepository.remove(id, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const deleted = await assetsRepository.remove(id, siteId);
     if (!deleted) {
       return res.status(404).json({ error: 'Asset not found' });
     }

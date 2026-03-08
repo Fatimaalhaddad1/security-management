@@ -11,8 +11,8 @@ const assetsController = require('../controllers/assets.controller');
 const { authMiddleware } = require('../middleware/auth.middleware');
 const { allowRoles } = require('../middleware/role.middleware');
 
-const allRoles = ['admin', 'inspector', 'technician'];
-const adminOnly = ['admin'];
+const allRoles = ['admin', 'inspector', 'technician', 'super_admin'];
+const adminOnly = ['admin', 'super_admin'];
 
 /**
  * @swagger

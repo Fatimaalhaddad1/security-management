@@ -10,6 +10,7 @@ INSERT INTO sites (name) VALUES
 
 -- Users (password_hash = bcrypt of 'password123')
 INSERT INTO users (full_name, email, password_hash, role, site_id) VALUES
+  ('Super Admin', 'superadmin@company.com', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'super_admin', 1),
   ('Admin User', 'admin@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'admin', 1),
   ('Inspector One', 'inspector@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'inspector', 1),
   ('Tech Abha', 'technician@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'technician', 1),

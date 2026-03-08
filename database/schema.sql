@@ -18,7 +18,7 @@ CREATE TABLE users (
   site_id INTEGER NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (site_id) REFERENCES sites(id),
-  CHECK (role IN ('admin', 'inspector', 'technician'))
+  CHECK (role IN ('admin', 'inspector', 'technician', 'super_admin'))
 );
 
 -- Assets (security devices)

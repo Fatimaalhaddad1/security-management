@@ -1,6 +1,14 @@
 const { pool } = require('../config/db');
 
 async function findAllBySite(siteId) {
+  if (siteId === null || siteId === undefined) {
+    const result = await pool.query(
+      `SELECT mr.* FROM maintenance_records mr
+       JOIN assets a ON mr.asset_id = a.id
+       ORDER BY mr.date DESC, mr.id DESC`
+    );
+    return result.rows;
+  }
   const result = await pool.query(
     `SELECT mr.* FROM maintenance_records mr
      JOIN assets a ON mr.asset_id = a.id
@@ -12,6 +20,13 @@ async function findAllBySite(siteId) {
 }
 
 async function findByIdAndSite(id, siteId) {
+  if (siteId === null || siteId === undefined) {
+    const result = await pool.query(
+      'SELECT mr.* FROM maintenance_records mr WHERE mr.id = $1',
+      [id]
+    );
+    return result.rows[0] || null;
+  }
   const result = await pool.query(
     `SELECT mr.* FROM maintenance_records mr
      JOIN assets a ON mr.asset_id = a.id
@@ -32,6 +47,26 @@ async function create(data, technicianId) {
 }
 
 async function update(id, siteId, data) {
+  if (siteId === null || siteId === undefined) {
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+    const allowed = ['maintenance_type', 'description'];
+    for (const key of allowed) {
+      if (data[key] !== undefined) {
+        updates.push(`${key} = $${paramIndex}`);
+        values.push(data[key]);
+        paramIndex++;
+      }
+    }
+    if (updates.length === 0) return null;
+    values.push(id);
+    const result = await pool.query(
+      `UPDATE maintenance_records SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      values
+    );
+    return result.rows[0] || null;
+  }
   const updates = [];
   const values = [];
   let paramIndex = 1;
@@ -60,6 +95,13 @@ async function update(id, siteId, data) {
 }
 
 async function remove(id, siteId) {
+  if (siteId === null || siteId === undefined) {
+    const result = await pool.query(
+      'DELETE FROM maintenance_records WHERE id = $1 RETURNING id',
+      [id]
+    );
+    return result.rowCount > 0;
+  }
   const result = await pool.query(
     `DELETE FROM maintenance_records
      WHERE id = $1
