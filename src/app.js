@@ -5,6 +5,8 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 const authRoutes = require('./routes/auth.routes');
+const usersRoutes = require('./routes/users.routes');
+const sitesRoutes = require('./routes/sites.routes');
 const assetsRoutes = require('./routes/assets.routes');
 const dailyChecksRoutes = require('./routes/dailyChecks.routes');
 const maintenanceRoutes = require('./routes/maintenance.routes');
@@ -73,6 +75,8 @@ app.get('/', (req, res) => {
 
 // API v1 routes
 app.use('/api/v1', authRoutes);
+app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/sites', sitesRoutes);
 app.use('/api/v1/assets', assetsRoutes);
 app.use('/api/v1/daily-checks', dailyChecksRoutes);
 app.use('/api/v1/maintenance', maintenanceRoutes);

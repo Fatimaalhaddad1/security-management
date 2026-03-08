@@ -11,9 +11,9 @@ const maintenanceController = require('../controllers/maintenance.controller');
 const { authMiddleware } = require('../middleware/auth.middleware');
 const { allowRoles } = require('../middleware/role.middleware');
 
-const allRoles = ['admin', 'inspector', 'technician'];
-const adminAndTechnician = ['admin', 'technician'];
-const adminOnly = ['admin'];
+const allRoles = ['admin', 'inspector', 'technician', 'super_admin'];
+const adminAndTechnician = ['admin', 'technician', 'super_admin'];
+const adminOnly = ['admin', 'super_admin'];
 
 /**
  * @swagger

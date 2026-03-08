@@ -4,7 +4,10 @@ const { validateRecordMaintenance, validateUpdateMaintenance } = require('../uti
 
 async function list(req, res) {
   try {
-    const records = await maintenanceRepository.findAllBySite(req.user.site_id);
+    const siteId = req.user.role === 'super_admin'
+      ? (req.query.site_id ? parseInt(req.query.site_id, 10) : null)
+      : req.user.site_id;
+    const records = await maintenanceRepository.findAllBySite(isNaN(siteId) ? null : siteId);
     res.json(records);
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
@@ -18,7 +21,8 @@ async function getById(req, res) {
       return res.status(400).json({ error: 'Invalid maintenance record id' });
     }
 
-    const record = await maintenanceRepository.findByIdAndSite(id, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const record = await maintenanceRepository.findByIdAndSite(id, siteId);
     if (!record) {
       return res.status(404).json({ error: 'Maintenance record not found' });
     }
@@ -41,7 +45,8 @@ async function create(req, res) {
       return res.status(400).json({ error: 'Invalid asset_id' });
     }
 
-    const asset = await assetsRepository.findByIdAndSite(assetId, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const asset = await assetsRepository.findByIdAndSite(assetId, siteId);
     if (!asset) {
       return res.status(404).json({ error: 'Asset not found' });
     }
@@ -82,7 +87,8 @@ async function update(req, res) {
       return res.status(400).json({ errors });
     }
 
-    const record = await maintenanceRepository.update(id, req.user.site_id, req.body);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const record = await maintenanceRepository.update(id, siteId, req.body);
     if (!record) {
       return res.status(404).json({ error: 'Maintenance record not found' });
     }
@@ -100,7 +106,8 @@ async function remove(req, res) {
       return res.status(400).json({ error: 'Invalid maintenance record id' });
     }
 
-    const deleted = await maintenanceRepository.remove(id, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const deleted = await maintenanceRepository.remove(id, siteId);
     if (!deleted) {
       return res.status(404).json({ error: 'Maintenance record not found' });
     }

@@ -4,7 +4,10 @@ const { validateRecordDailyCheck, validateUpdateDailyCheck } = require('../utils
 
 async function list(req, res) {
   try {
-    const checks = await dailyChecksRepository.findAllBySite(req.user.site_id);
+    const siteId = req.user.role === 'super_admin'
+      ? (req.query.site_id ? parseInt(req.query.site_id, 10) : null)
+      : req.user.site_id;
+    const checks = await dailyChecksRepository.findAllBySite(isNaN(siteId) ? null : siteId);
     res.json(checks);
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
@@ -18,7 +21,8 @@ async function getById(req, res) {
       return res.status(400).json({ error: 'Invalid daily check id' });
     }
 
-    const check = await dailyChecksRepository.findByIdAndSite(id, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const check = await dailyChecksRepository.findByIdAndSite(id, siteId);
     if (!check) {
       return res.status(404).json({ error: 'Daily check not found' });
     }
@@ -41,7 +45,8 @@ async function create(req, res) {
       return res.status(400).json({ error: 'Invalid asset_id' });
     }
 
-    const asset = await assetsRepository.findByIdAndSite(assetId, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const asset = await assetsRepository.findByIdAndSite(assetId, siteId);
     if (!asset) {
       return res.status(404).json({ error: 'Asset not found' });
     }
@@ -81,7 +86,8 @@ async function update(req, res) {
       return res.status(400).json({ errors });
     }
 
-    const check = await dailyChecksRepository.update(id, req.user.site_id, req.body);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const check = await dailyChecksRepository.update(id, siteId, req.body);
     if (!check) {
       return res.status(404).json({ error: 'Daily check not found' });
     }
@@ -99,7 +105,8 @@ async function remove(req, res) {
       return res.status(400).json({ error: 'Invalid daily check id' });
     }
 
-    const deleted = await dailyChecksRepository.remove(id, req.user.site_id);
+    const siteId = req.user.role === 'super_admin' ? null : req.user.site_id;
+    const deleted = await dailyChecksRepository.remove(id, siteId);
     if (!deleted) {
       return res.status(404).json({ error: 'Daily check not found' });
     }

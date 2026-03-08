@@ -11,9 +11,9 @@ const dailyChecksController = require('../controllers/dailyChecks.controller');
 const { authMiddleware } = require('../middleware/auth.middleware');
 const { allowRoles } = require('../middleware/role.middleware');
 
-const allRoles = ['admin', 'inspector', 'technician'];
-const adminAndInspector = ['admin', 'inspector'];
-const adminOnly = ['admin'];
+const allRoles = ['admin', 'inspector', 'technician', 'super_admin'];
+const adminAndInspector = ['admin', 'inspector', 'super_admin'];
+const adminOnly = ['admin', 'super_admin'];
 
 /**
  * @swagger

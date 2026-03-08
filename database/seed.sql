@@ -9,17 +9,18 @@ INSERT INTO sites (name) VALUES
   ('Dammam Airport');
 
 -- Users (password_hash = bcrypt of 'password123')
-INSERT INTO users (full_name, email, password_hash, role, site_id) VALUES
-  ('Super Admin', 'superadmin@company.com', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'super_admin', 1),
-  ('Admin User', 'admin@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'admin', 1),
-  ('Inspector One', 'inspector@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'inspector', 1),
-  ('Tech Abha', 'technician@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'technician', 1),
-  ('Admin Riyadh', 'admin@riyadh.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'admin', 2),
-  ('Inspector Riyadh', 'inspector@riyadh.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'inspector', 2),
-  ('Tech Riyadh', 'technician@riyadh.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'technician', 2),
-  ('Admin Dammam', 'admin@dammam.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'admin', 3),
-  ('Inspector Dammam', 'inspector@dammam.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'inspector', 3),
-  ('Tech Dammam', 'technician@dammam.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'technician', 3);
+-- Super Admin is pre-approved. Other users have status=approved and approved_by=1.
+INSERT INTO users (full_name, email, password_hash, role, site_id, status, approved_by, approved_at) VALUES
+  ('Super Admin', 'superadmin@company.com', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'super_admin', 1, 'approved', NULL, CURRENT_TIMESTAMP),
+  ('Admin User', 'admin@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'admin', 1, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Inspector One', 'inspector@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'inspector', 1, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Tech Abha', 'technician@abha.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'technician', 1, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Admin Riyadh', 'admin@riyadh.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'admin', 2, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Inspector Riyadh', 'inspector@riyadh.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'inspector', 2, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Tech Riyadh', 'technician@riyadh.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'technician', 2, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Admin Dammam', 'admin@dammam.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'admin', 3, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Inspector Dammam', 'inspector@dammam.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'inspector', 3, 'approved', 1, CURRENT_TIMESTAMP),
+  ('Tech Dammam', 'technician@dammam.airport', '$2a$10$L4lexBqORPF.Rq6okUuc8.4Tn6ICP3HSrwFGavdDBBZnD.x9hN6UO', 'technician', 3, 'approved', 1, CURRENT_TIMESTAMP);
 
 -- Assets (site 1 = Abha, site 2 = Riyadh, site 3 = Dammam)
 INSERT INTO assets (facility_number, serial_number, device_type, manufacturer, model, production_year, site_id, location, operational_status) VALUES

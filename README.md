@@ -26,16 +26,19 @@ security-management-system
 │   │   └── db.js
 │   ├── routes
 │   │   ├── auth.routes.js
+│   │   ├── users.routes.js
 │   │   ├── assets.routes.js
 │   │   ├── dailyChecks.routes.js
 │   │   └── maintenance.routes.js
 │   ├── controllers
 │   │   ├── auth.controller.js
+│   │   ├── users.controller.js
 │   │   ├── assets.controller.js
 │   │   ├── dailyChecks.controller.js
 │   │   └── maintenance.controller.js
 │   ├── repositories
 │   │   ├── auth.repository.js
+│   │   ├── users.repository.js
 │   │   ├── assets.repository.js
 │   │   ├── dailyChecks.repository.js
 │   │   └── maintenance.repository.js
@@ -47,7 +50,9 @@ security-management-system
 │       └── validators.js
 ├── database
 │   ├── schema.sql
-│   └── seed.sql
+│   ├── seed.sql
+│   ├── migration_super_admin.sql
+│   └── migration_registration.sql
 ├── .env
 ├── docker-compose.yml
 ├── .env.example
@@ -105,6 +110,44 @@ npm start
 
 The server runs on `http://localhost:3000` by default.
 
+## Database Migrations
+
+Use migrations to update an **existing** database without recreating it. Fresh installs use `schema.sql` and `seed.sql` only.
+
+### migration_super_admin.sql
+
+Adds the `super_admin` role to the users table role constraint. Run if your schema was created before super_admin support.
+
+```bash
+docker exec -i security_management_db psql -U postgres -d security_management < database/migration_super_admin.sql
+```
+
+Then insert the super_admin user (see `seed.sql` for the INSERT statement).
+
+### migration_registration.sql
+
+Adds the registration and approval flow:
+- `status`, `approved_by`, `approved_at` columns
+- Nullable `role` and `site_id` (for pending users)
+- Constraints for status and role
+
+Run if your database was created with the old users schema (without registration flow).
+
+```bash
+docker exec -i security_management_db psql -U postgres -d security_management < database/migration_registration.sql
+```
+
+### Fresh database reset
+
+To drop and recreate the database from scratch:
+
+```bash
+docker exec -i security_management_db psql -U postgres -c "DROP DATABASE IF EXISTS security_management;"
+docker exec -i security_management_db psql -U postgres -c "CREATE DATABASE security_management;"
+docker exec -i security_management_db psql -U postgres -d security_management < database/schema.sql
+docker exec -i security_management_db psql -U postgres -d security_management < database/seed.sql
+```
+
 ## Environment Variables
 
 | Variable    | Description                | Example                          |
@@ -131,7 +174,10 @@ Base URL: `/api/v1`
 
 | Method | Endpoint            | Description                    |
 |--------|---------------------|--------------------------------|
+| `POST` | `/register`         | Register (pending approval)    |
 | `POST` | `/login`            | Login (returns JWT + user)     |
+| `PATCH`| `/users/assign`     | Approve and assign user (super_admin) |
+| `GET`  | `/sites`            | List all sites                 |
 | `GET`  | `/assets`           | List assets                    |
 | `GET`  | `/assets/:id`       | Get asset with history         |
 | `POST` | `/assets`           | Create asset                   |
@@ -148,12 +194,14 @@ Base URL: `/api/v1`
 | `PATCH`| `/maintenance/:id`  | Update maintenance record      |
 | `DELETE`| `/maintenance/:id` | Delete maintenance record      |
 
-## Authentication
+## Authentication & Registration
 
-- **Login**: `POST /api/v1/login` with `{ "email": "...", "password": "..." }`
-- Returns `{ "token": "...", "user": { ... } }`
+- **Register**: `POST /api/v1/register` with `{ "full_name": "...", "email": "...", "password": "..." }` — public, creates pending user
+- **Login**: `POST /api/v1/login` with `{ "email": "...", "password": "..." }` — only approved users can log in
+- **Assign**: `PATCH /api/v1/users/assign` — super_admin only, approves user and assigns role/site
 - Use the token in protected requests: `Authorization: Bearer <token>`
 - Seed users have password: `password123` (change in production)
+- Super admin: `superadmin@company.com` / `password123` — can access all sites
 
 ## Implementation Notes
 

@@ -8,17 +8,26 @@ CREATE TABLE sites (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Users
+-- Users (role and site_id nullable until approved by super_admin)
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   full_name VARCHAR(100) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
-  role VARCHAR(20) NOT NULL,
-  site_id INTEGER NOT NULL,
+  role VARCHAR(20),
+  site_id INTEGER,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  approved_by INTEGER,
+  approved_at TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (site_id) REFERENCES sites(id),
-  CHECK (role IN ('admin', 'inspector', 'technician', 'super_admin'))
+  FOREIGN KEY (approved_by) REFERENCES users(id),
+  CHECK (role IS NULL OR role IN ('super_admin', 'admin', 'inspector', 'technician')),
+  CHECK (status IN ('pending', 'approved')),
+  CHECK (
+    (status = 'pending' AND approved_by IS NULL AND approved_at IS NULL) OR
+    (status = 'approved' AND approved_by IS NOT NULL AND approved_at IS NOT NULL)
+  )
 );
 
 -- Assets (security devices)

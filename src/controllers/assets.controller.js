@@ -2,20 +2,20 @@ const assetsRepository = require('../repositories/assets.repository');
 const sitesRepository = require('../repositories/sites.repository');
 const { validateCreateAsset, validateUpdateAsset } = require('../utils/validators');
 
-function getSiteId(req, listMode = false) {
+function getListSiteId(req) {
   if (req.user.role === 'super_admin') {
-    if (listMode && req.query.site_id) {
+    if (req.query.site_id) {
       const id = parseInt(req.query.site_id, 10);
       return isNaN(id) ? null : id;
     }
-    return listMode ? null : null;
+    return null;
   }
   return req.user.site_id;
 }
 
 async function list(req, res) {
   try {
-    const siteId = req.user.role === 'super_admin' ? getSiteId(req, true) : req.user.site_id;
+    const siteId = getListSiteId(req);
     const assets = await assetsRepository.findAllBySite(siteId);
     res.json({ assets });
   } catch (err) {

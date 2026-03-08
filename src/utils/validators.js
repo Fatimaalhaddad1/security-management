@@ -18,6 +18,28 @@ function validateLogin(body) {
   return errors.length ? errors : null;
 }
 
+const ASSIGNABLE_ROLES = ['admin', 'inspector', 'technician'];
+
+function validateRegister(body) {
+  const errors = [];
+  if (!isPresent(body?.full_name)) errors.push('full_name is required');
+  if (!isPresent(body?.email)) errors.push('email is required');
+  if (!isPresent(body?.password)) errors.push('password is required');
+  return errors.length ? errors : null;
+}
+
+function validateUserAssignment(body) {
+  const errors = [];
+  if (!isPresent(body?.email)) errors.push('email is required');
+  if (!isPresent(body?.role)) errors.push('role is required');
+  else if (!ASSIGNABLE_ROLES.includes(body?.role)) {
+    errors.push('role must be admin, inspector, or technician');
+  }
+  if (!isPresent(body?.site_id)) errors.push('site_id is required');
+  else if (!isNumeric(body.site_id)) errors.push('site_id must be numeric');
+  return errors.length ? errors : null;
+}
+
 function validateCreateAsset(body) {
   const errors = [];
   if (!isPresent(body?.facility_number)) errors.push('facility_number is required');
@@ -94,6 +116,8 @@ function validateUpdateMaintenance(body) {
 
 module.exports = {
   validateLogin,
+  validateRegister,
+  validateUserAssignment,
   validateCreateAsset,
   validateUpdateAsset,
   validateRecordDailyCheck,
